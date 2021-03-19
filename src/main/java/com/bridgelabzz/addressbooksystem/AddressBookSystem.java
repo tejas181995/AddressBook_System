@@ -6,6 +6,8 @@ import java.util.Scanner;
 public class AddressBookSystem {
 
     ArrayList<Contact> contactBook = new ArrayList<Contact>();
+    public static AddressBookSystem addressBook = new AddressBookSystem();
+
 
     public int addContacts(Contact contact) {
         contactBook.add(contact);
@@ -41,11 +43,9 @@ public class AddressBookSystem {
         System.out.println("------------------------------------------------");
 
     }
-    public static void main(String[] args) {
+    public static void addEntries(){
         int  noOfContacts;
-        int reply = 1;
-        int present = 0;
-        AddressBookSystem addressBook = new AddressBookSystem();
+
         Scanner sc = new Scanner(System.in);
         System.out.print("\nEnter Contact to be saved: ");
         noOfContacts = sc.nextInt();
@@ -53,18 +53,23 @@ public class AddressBookSystem {
         for (int j = 0; j < noOfContacts; j++) {
             String[] values = new String[8];
             for (int i = 0; i < values.length; i++) {
-                System.out.print("\nenter" + Contact.fields[i] + ": ");
+                System.out.print("\nenter " + Contact.fields[i] + ": ");
                 values[i] = sc.nextLine();
             }
             Contact contact = new Contact(values);
-            // contact.printContact();
             addressBook.addContacts(contact);
         }
+    }
+
+    public static void editEntry(){
+        int reply = 1;
+        Scanner sc = new Scanner(System.in);
+
         System.out.println("Enter Contact to be edit");
         String searchName = sc.nextLine();
-        present = addressBook.findContact(searchName);
-        if(present >= 0){
-            addressBook.getContact(present).printContact();
+        int index = addressBook.findContact(searchName);
+        if(index >= 0){
+            addressBook.getContact(index).printContact();
             while(reply == 1){
                 System.out.println("enter choice to edit = ");
                 for(int i=0; i< Contact.fields.length; i++){
@@ -74,25 +79,60 @@ public class AddressBookSystem {
                 sc.nextLine();
                 System.out.println("Enter new value of "+ Contact.fields[choice - 1]);
                 String newVal = sc.nextLine();
-                addressBook.editContact(present, choice-1, newVal);
-                addressBook.getContact(present).printContact();
+                addressBook.editContact(index, choice-1, newVal);
+                addressBook.getContact(index).printContact();
                 System.out.println("want to make more changes then press 1");
                 reply =  sc.nextInt();
             }
         }else{
             System.out.println("Contact not presnt");
         }
-        sc.nextLine();
+    }
+    public static void deleteEntry(){
+        Scanner sc = new Scanner(System.in);
+
         System.out.println("Enter contact Name to be deleted");
         String deleteName = sc.nextLine();
-        present = addressBook.findContact(deleteName);
-        if(present >=0){
-            addressBook.getContact(present).printContact();
-            addressBook.deleteContact(present);
+        int index = addressBook.findContact(deleteName);
+
+        index = addressBook.findContact(deleteName);
+        if(index >=0){
+            addressBook.getContact(index).printContact();
+            addressBook.deleteContact(index);
             System.out.println("Contact Deleted successfully");
         }else{
             System.out.println("contact not found");
         }
-        addressBook.printall();
+
     }
+
+
+    public static void main(String[] args) {
+        int choice = 0;
+        Scanner sc = new Scanner(System.in);
+
+        while(choice != 5){
+            System.out.println("1. Add contact \n2. Edit contact \n3.delete contact \n4. view all contacts. \n5. Exit");
+            System.out.print("\nEnter choice: ");
+            choice = sc.nextInt();
+
+            switch(choice){
+                case 1:
+                    addEntries();
+                    break;
+                case 2:
+                    editEntry();
+                    break;
+                case 3:
+                    deleteEntry();
+                    break;
+                case 4:
+                    addressBook.printall();
+                    break;
+                case 5:
+                    System.out.println("thank you..!!!");
+            }
+        }
+    }
+
 }

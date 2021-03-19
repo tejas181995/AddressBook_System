@@ -15,5 +15,4 @@ public class Contact {
             System.out.println(fields[i] + ":" + values[i]);
         }
     }
-
 }
