@@ -16,7 +16,7 @@ public class AddressBookSystem {
         if(index == -1) {
             contactBook.add(contact);
             System.out.println("contect added");
-            contact.printContact();
+
 
         }else{
             System.out.println("Contact Already Exist");
@@ -26,6 +26,9 @@ public class AddressBookSystem {
         return contactBook.size();
 
 
+    }
+    public ArrayList<Contact> getContact(){
+        return contactBook;
     }
 
 
@@ -134,13 +137,35 @@ public class AddressBookSystem {
             System.out.println(e.getKey());
         }
     }
+    public static void searchByCity(String city){
+        for(Map.Entry<String, AddressBookSystem> e:addressBooks.entrySet()){
+            AddressBookSystem current = e.getValue();
+            for(Contact c : current.getContact()){
+                if(c.values[3].equals(city)){
+                    c.printContact();
+                }
+
+            }
+        }
+    }
+    public static void searchByState(String state){
+        for(Map.Entry<String, AddressBookSystem> e:addressBooks.entrySet()){
+            AddressBookSystem current = e.getValue();
+            for(Contact c : current.getContact()){
+                if(c.values[4].equals(state)){
+                    c.printContact();
+                }
+
+            }
+        }
+    }
     public static void main(String[] args) {
         addressBooks.put("default", addressBook);
         int choice = 0;
         Scanner sc = new Scanner(System.in);
 
-        while(choice != 5){
-            System.out.println("0.Add Address book \n1. Add contact \n2. Edit contact \n3.delete contact \n4. view all contacts. \n5. Exit");
+        while(choice != 7){
+            System.out.println("0.Add Address book \n1. Add contact \n2. Edit contact \n3.delete contact \n4. view all contacts. \n5. search Contact by city. \n6. search contact by state. \n7 Exit");
             System.out.print("\nEnter choice: ");
             choice = sc.nextInt();
 
@@ -161,8 +186,17 @@ public class AddressBookSystem {
                     addressBook.printall();
                     break;
                 case 5:
+                    searchByCity("Satara");
+                    break;
+                case 6:
+                    searchByState("Maha");
+                    break;
+                case 7:
                     System.out.println("thank you..!!!");
+                    break;
+
             }
         }
     }
+
 }
