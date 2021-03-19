@@ -2,6 +2,7 @@ package com.bridgelabzz.addressbooksystem;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 public class AddressBookSystem {
@@ -11,11 +12,22 @@ public class AddressBookSystem {
     public static HashMap<String, AddressBookSystem> addressBooks = new HashMap<>();
 
     public int addContacts(Contact contact) {
-        contactBook.add(contact);
-        contact.printContact();
+        int index = contactBook.indexOf(contact);
+        if(index == -1) {
+            contactBook.add(contact);
+            System.out.println("contect added");
+            contact.printContact();
+
+        }else{
+            System.out.println("Contact Already Exist");
+            getContact(index).printContact();
+
+        }
         return contactBook.size();
 
+
     }
+
 
     public int findContact(String firstName) {
         for (int i = 0; i < contactBook.size(); i++) {
@@ -114,7 +126,13 @@ public class AddressBookSystem {
         addressBook  = new AddressBookSystem();
         addressBooks.put(name, addressBook) ;
         System.out.println("New addressbook added ");
-
+        showAddressBooks();
+    }
+    public static void showAddressBooks(){
+        System.out.println("Available address books are");
+        for(Map.Entry<String,AddressBookSystem> e: addressBooks.entrySet() ){
+            System.out.println(e.getKey());
+        }
     }
     public static void main(String[] args) {
         addressBooks.put("default", addressBook);
@@ -147,6 +165,4 @@ public class AddressBookSystem {
             }
         }
     }
-
-
 }

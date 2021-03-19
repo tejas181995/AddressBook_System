@@ -1,8 +1,8 @@
 package com.bridgelabzz.addressbooksystem;
 
 public class Contact {
-    public static final String[] fields = new String[] { "firstName", "lastName", "address", "city", "state", "zipCode",
-            "phoneNumber", "email" };
+    public static final String[] fields = new String[]{"firstName", "lastName", "address", "city", "state", "zipCode",
+            "phoneNumber", "email"};
     public String[] values;
 
     public Contact(String[] values) {
@@ -14,5 +14,17 @@ public class Contact {
         for (int i = 0; i < fields.length; i++) {
             System.out.println(fields[i] + ":" + values[i]);
         }
+    }
+
+    @Override
+    public boolean equals(Object contact) {
+        if(contact instanceof Contact){
+            return isEquivalent((Contact) contact);
+        }
+        return false;
+    }
+
+    private boolean isEquivalent(Contact contact) {
+        return (this.values[0].equals(contact.values[0]) && this.values[1].equals(contact.values[1]));
     }
 }
