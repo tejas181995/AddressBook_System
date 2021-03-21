@@ -45,5 +45,12 @@ public class Contact {
         }
         return contactInfo;
     }
-
+    public String CSVformat(String bookname){
+        String format = bookname;
+        List<fields> field = Arrays.asList(fields.values());
+        for(fields f: field){
+            format = format + " " + values.get(f);
+        }
+        return format;
+    }
 }
