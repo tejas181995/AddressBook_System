@@ -22,6 +22,9 @@ public class Contact {
         }
         return false;
     }
+    private boolean isEquivalent(Contact contact) {
+        return (this.values[0].equals(contact.values[0]) && this.values[1].equals(contact.values[1]));
+    }
 
     @Override
     public String toString() {
@@ -33,7 +36,5 @@ public class Contact {
         return contactInfo;
     }
 
-    private boolean isEquivalent(Contact contact) {
-        return (this.values[0].equals(contact.values[0]) && this.values[1].equals(contact.values[1]));
-    }
+
 }
