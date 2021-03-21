@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Scanner;
 
 public class AddressBookSystem {
+
     ArrayList<Contact> contactBook = new ArrayList<Contact>();
     public static AddressBookSystem addressBook = new AddressBookSystem();
     public static HashMap<String, AddressBookSystem> addressBooks = new HashMap<>();
@@ -66,6 +67,7 @@ public class AddressBookSystem {
     }
 
     public void printall(){
+        sortAddressBook();
         for(Contact a:contactBook){
             System.out.println("------------------------------------------------");
             a.printContact();
@@ -123,7 +125,7 @@ public class AddressBookSystem {
 
         System.out.println("Enter contact Name to be deleted");
         String deleteName = sc.nextLine();
-        int index = addressBook.findContact(deleteName);
+        int index ;
 
         index = addressBook.findContact(deleteName);
         if(index >=0){
@@ -151,35 +153,29 @@ public class AddressBookSystem {
             System.out.println(e.getKey());
         }
     }
-    public static void searchByCity(String city){
-        ArrayList<Contact> contactList = byCity.get(city);
+    public static void searchBy(HashMap<String, ArrayList<Contact>> searchSpace, String region){
+        ArrayList<Contact> contactList = searchSpace.get(region);
         if(contactList != null)
             for(Contact c: contactList){
                 c.printContact();
             }
+
     }
-    public static void searchByState(String state){
-        ArrayList<Contact> contactList = byState.get(state);
-        if(contactList != null)
-            for(Contact c: contactList){
-                c.printContact();
-            }
-    }
-    public static void totalContactByCity(String city){
-        ArrayList<Contact> curList = byCity.get(city);
+    public static void totalContacts(HashMap<String, ArrayList<Contact>> searchSpace, String region){
+
+        ArrayList<Contact> curList = searchSpace.get(region);
         if(curList == null){
             System.out.println("Size is 0");
         }else{
             System.out.println("size is: " + curList.size());
         }
     }
-    public static void totalContactByState(String state){
-        ArrayList<Contact> curList = byState.get(state);
-        if(curList == null){
-            System.out.println("Size is 0");
-        }else{
-            System.out.println("size is: " + curList.size());
-        }
+    public static void sortAddressBook(){
+        addressBook.contactBook.sort((Contact c1, Contact c2) -> {
+            String name1 = c1.values[0] + " " + c1.values[1];
+            String name2 = c2.values[0] + " " + c2.values[1];
+            return name1.compareTo(name2);
+        });
     }
     public static void main(String[] args) {
         addressBooks.put("default", addressBook);
@@ -211,25 +207,25 @@ public class AddressBookSystem {
                     sc.nextLine();
                     System.out.println("Enter city Name");
                     String city = sc.nextLine();
-                    searchByCity(city);
+                    searchBy(byCity,city);
                     break;
                 case 6:
                     System.out.println("Enter state Name");
                     sc.nextLine();
                     String state = sc.nextLine();
-                    searchByState(state);
+                    searchBy(byState, state);
                     break;
                 case 7:
                     System.out.println("Enter city Name");
                     sc.nextLine();
                     String city1 = sc.nextLine();
-                    totalContactByCity(city1);
+                    totalContacts(byCity, city1);
                     break;
                 case 8:
                     System.out.println("Enter state Name");
                     sc.nextLine();
                     String state1 = sc.nextLine();
-                    totalContactByState(state1);
+                    totalContacts(byState, state1);
                     break;
                 case 9:
                     System.out.println("thank you..!!!");
@@ -238,6 +234,5 @@ public class AddressBookSystem {
             }
         }
     }
-
 
 }

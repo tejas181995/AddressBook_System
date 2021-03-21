@@ -11,9 +11,8 @@ public class Contact {
     }
 
     public void printContact() {
-        for (int i = 0; i < fields.length; i++) {
-            System.out.println(fields[i] + ":" + values[i]);
-        }
+
+        System.out.println(this.toString());
     }
 
     @Override
@@ -22,6 +21,16 @@ public class Contact {
             return isEquivalent((Contact) contact);
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        String contactInfo;
+        contactInfo = "Name: " + values[0] + " " +  values[1];
+        for(int i =2; i<fields.length; i ++){
+            contactInfo = contactInfo + "\n" + fields[i] + ": " + values[i];
+        }
+        return contactInfo;
     }
 
     private boolean isEquivalent(Contact contact) {
