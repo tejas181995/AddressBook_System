@@ -1,11 +1,19 @@
 package com.bridgelabzz.addressbooksystem;
 
-public class Contact {
-    public static final String[] fields = new String[]{"firstName", "lastName", "address", "city", "state", "zipCode",
-            "phoneNumber", "email"};
-    public String[] values;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
-    public Contact(String[] values) {
+public class Contact {
+    //    public static final String[] fields = new String[]{"firstName", "lastName", "address", "city", "state", "zipCode",
+//            "phoneNumber", "email"};
+    public static enum fields{
+        firstName, lastName, address, city, state,zipCode, phoneNumber, email;
+    }
+
+    public HashMap<fields, String> values;
+
+    public Contact(HashMap<fields, String> values) {
         this.values = values;
 
     }
@@ -23,18 +31,19 @@ public class Contact {
         return false;
     }
     private boolean isEquivalent(Contact contact) {
-        return (this.values[0].equals(contact.values[0]) && this.values[1].equals(contact.values[1]));
+        return (this.values.get(fields.firstName).equals(contact.values.get(fields.firstName)) &&
+                this.values.get(fields.lastName).equals(contact.values.get(fields.lastName)));
     }
 
     @Override
     public String toString() {
         String contactInfo;
-        contactInfo = "Name: " + values[0] + " " +  values[1];
-        for(int i =2; i<fields.length; i ++){
-            contactInfo = contactInfo + "\n" + fields[i] + ": " + values[i];
+        contactInfo = "Name: " + values.get(fields.firstName) + " " +  values.get(fields.lastName);
+        List<fields> field = Arrays.asList(fields.values());
+        for(int i =2; i<field.size(); i ++){
+            contactInfo = contactInfo + "\n" + field.get(i) + ": " + values.get(field.get(i));
         }
         return contactInfo;
     }
-
 
 }
