@@ -4,13 +4,11 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.opencsv.CSVWriter;
-import java.sql.Connection;
+
+import java.sql.*;
 
 import java.io.*;
 import java.lang.reflect.Type;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -76,13 +74,28 @@ public class AddressBookDemo {
                     System.out.println(i +1 + " :" + " " + field.get(i));
                 }
                 int choice = sc.nextInt();
+                choice--;
                 sc.nextLine();
-                System.out.println("Enter new value of "+ field.get(choice - 1));
+                System.out.println("Enter new value of "+ field.get(choice ));
                 String newVal = sc.nextLine();
-                addressBook.editContact(index, field.get(choice - 1), newVal);
+                addressBook.editContact(index, field.get(choice), newVal);
                 addressBook.getContact(index).printContact();
+                String query = "UPDATE AddressBookTable SET "+ String.valueOf(field.get(choice))+ "  = ? WHERE FIRSTNAME = ? ";
+                try {
+                    PreparedStatement statement = connection.prepareStatement(query);
+
+                    statement.setString(1, newVal);
+                    statement.setString(2,searchName);
+                    statement.executeUpdate();
+                    statement.close();
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
                 System.out.println("want to make more changes then press 1");
                 reply =  sc.nextInt();
+
+
+
             }
         }else{
             System.out.println("Contact not presnt");
@@ -100,6 +113,15 @@ public class AddressBookDemo {
         if(index >=0){
             addressBook.getContact(index).printContact();
             addressBook.deleteContact(index);
+            String query = "DELETE FROM AddressBookTable WHERE FIRSTNAME = ? ";
+            try {
+                PreparedStatement statement = connection.prepareStatement(query);
+                statement.setString(1, deleteName);
+                statement.executeUpdate();
+                statement.close();
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
             System.out.println("Contact Deleted successfully");
         }else{
             System.out.println("contact not found");
@@ -243,7 +265,7 @@ public class AddressBookDemo {
             map.put(Contact.fields.address, res.getString("address"));
             map.put(Contact.fields.city, res.getString("city"));
             map.put(Contact.fields.state, res.getString("state"));
-            map.put(Contact.fields.zipCode, String.valueOf(res.getInt("zip")));
+            map.put(Contact.fields.zipCode, String.valueOf(res.getInt("zipCode")));
             map.put(Contact.fields.phoneNumber, res.getString("phoneNumber"));
             map.put(Contact.fields.email, res.getString("email"));
             AddressBookSystem curr = addressBooks.get(res.getString("addressbookname"));
