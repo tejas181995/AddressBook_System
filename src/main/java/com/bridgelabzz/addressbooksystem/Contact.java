@@ -54,5 +54,21 @@ public class Contact {
         return format;
     }
 
+    public String InsertQueryFormat(String bookname){
+        String format = "";
+        format = format + "'" + values.get(fields.firstName) + "'";
+        format = format + ", '" + values.get(fields.lastName) + "'";
+        format = format + ", '" + values.get(fields.address) + "'";
+        format = format + ", '" + values.get(fields.city) + "'";
+        format = format + ", '" + values.get(fields.state) + "'";
+        format = format + ", " + values.get(fields.zipCode) ;
+        format = format + ", '" + values.get(fields.phoneNumber) + "'";
+        format = format + ", '" + values.get(fields.email) + "'";
+        format = format + ", '" + bookname + "'";
+        format = format + ", '" + "friend" + "'";
+
+        return "( " + format + " )";
+    }
+
 
 }

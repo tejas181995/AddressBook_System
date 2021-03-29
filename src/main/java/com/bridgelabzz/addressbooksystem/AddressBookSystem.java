@@ -24,6 +24,7 @@ public class AddressBookSystem {
             getContact(index).printContact();
 
         }
+        contact.printContact();
         return contactBook.size();
 
 

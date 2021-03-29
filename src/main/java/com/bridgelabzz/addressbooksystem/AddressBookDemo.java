@@ -20,6 +20,20 @@ public class AddressBookDemo {
     public static String currAddressBook = "default";
     public static Scanner sc = new Scanner(System.in);
 
+    public static final String jdbcURL = "jdbc:mysql://localhost:3306/Address_book_service?allowPublicKeyRetrieval=true&useSSL=false";
+    public static final String userName = "tejas";
+    public static final String password = "Password@123";
+    public static Connection connection;
+
+    public static void init(){
+        try {
+            connection = DriverManager.getConnection(jdbcURL, userName, password);
+            loadData();
+        } catch (SQLException throwables) {
+            System.out.println("Unable to retrive data");
+        }
+    }
+
     public static void addEntries(){
         int  noOfContacts;
         Scanner sc = new Scanner(System.in);
@@ -37,6 +51,12 @@ public class AddressBookDemo {
             }
             Contact newContact = new Contact(contact);
             addressBook.addContacts(newContact);
+            try {
+                System.out.println(newContact.InsertQueryFormat(currAddressBook));
+                connection.createStatement().executeUpdate("INSERT INTO AddressBookTable VALUES "+newContact.InsertQueryFormat(currAddressBook));
+            } catch (SQLException throwables) {
+                System.out.println("Unable to add to DB");
+            }
         }
     }
 
@@ -213,41 +233,30 @@ public class AddressBookDemo {
         }
         if(addressBooks == null) addressBooks = new HashMap<>();
     }
-    public static void loadData() {
-        String jdbcURL = "jdbc:mysql://localhost:3306/Address_book_service?allowPublicKeyRetrieval=true&useSSL=false";
-        String userName = "tejas";
-        String password = "Password@123";
-        Connection connection;
-        System.out.println("Connecting to database:" + jdbcURL);
-        try {
 
-            connection = DriverManager.getConnection(jdbcURL, userName, password);
-            ResultSet res = connection.createStatement().executeQuery("SELECT * from AddressBookTable");
-            while(res.next()){
-                HashMap<Contact.fields, String> map = new HashMap<>();
-                map.put(Contact.fields.firstName, res.getString("firstName"));
-                map.put(Contact.fields.lastName, res.getString("lastname"));
-                map.put(Contact.fields.address, res.getString("address"));
-                map.put(Contact.fields.city, res.getString("city"));
-                map.put(Contact.fields.state, res.getString("state"));
-                map.put(Contact.fields.zipCode, String.valueOf(res.getInt("zip")));
-                map.put(Contact.fields.phoneNumber, res.getString("phoneNumber"));
-                map.put(Contact.fields.email, res.getString("email"));
-                AddressBookSystem curr = addressBooks.get(res.getString("addressbookname"));
-                if(curr == null)
-                    curr = new AddressBookSystem();
-                curr.addContacts(new Contact(map));
-                addressBooks.put(res.getString("addressbookname"), curr);
-            }
-        } catch (SQLException throwables) {
-            System.out.println("Unable to retrive data");
+    public static void loadData() throws SQLException {
+        ResultSet res = connection.createStatement().executeQuery("SELECT * from AddressBookTable");
+        while(res.next()) {
+            HashMap<Contact.fields, String> map = new HashMap<>();
+            map.put(Contact.fields.firstName, res.getString("firstName"));
+            map.put(Contact.fields.lastName, res.getString("lastname"));
+            map.put(Contact.fields.address, res.getString("address"));
+            map.put(Contact.fields.city, res.getString("city"));
+            map.put(Contact.fields.state, res.getString("state"));
+            map.put(Contact.fields.zipCode, String.valueOf(res.getInt("zip")));
+            map.put(Contact.fields.phoneNumber, res.getString("phoneNumber"));
+            map.put(Contact.fields.email, res.getString("email"));
+            AddressBookSystem curr = addressBooks.get(res.getString("addressbookname"));
+            if (curr == null)
+                curr = new AddressBookSystem();
+            curr.addContacts(new Contact(map));
+            addressBooks.put(res.getString("addressbookname"), curr);
         }
-
-
     }
+
     public static void main(String[] args) {
+        init();
         int choice = 0;
-        loadData();
         addressBook = addressBooks.get("default");
         if(addressBook == null){
             addressBook = new AddressBookSystem();
