@@ -1,11 +1,16 @@
 package com.bridgelabzz.addressbooksystem;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.opencsv.CSVWriter;
+import java.sql.Connection;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.lang.reflect.Type;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -27,7 +32,8 @@ public class AddressBookDemo {
 
             for (int i = 0; i < field.size(); i++) {
                 System.out.print("\nenter " + field.get(i) + ": ");
-                contact.put(field.get(i), sc.nextLine())  ;
+                String val = sc.nextLine();
+                contact.put(field.get(i), val) ;
             }
             Contact newContact = new Contact(contact);
             addressBook.addContacts(newContact);
@@ -62,6 +68,7 @@ public class AddressBookDemo {
             System.out.println("Contact not presnt");
         }
     }
+
     public static void deleteEntry(){
         Scanner sc = new Scanner(System.in);
 
@@ -100,12 +107,14 @@ public class AddressBookDemo {
         System.out.println("New addressbook added ");
         showAddressBooks();
     }
+
     public static void showAddressBooks(){
         System.out.println("Available address books are");
         for(Map.Entry<String,AddressBookSystem> e: addressBooks.entrySet() ){
             System.out.println(e.getKey());
         }
     }
+
     public static void searchBy(Contact.fields field, String region){
         addressBook.contactBook.stream().filter(contact -> {
             return contact.values.get(field).equals(region);
@@ -113,12 +122,14 @@ public class AddressBookDemo {
 
 
     }
+
     public static void totalContacts(Contact.fields field, String region){
 
         System.out.println(addressBook.contactBook.stream().filter(contact -> {
             return contact.values.get(field).equals(region);
         }).count());
     }
+
     public static void sortAddressBook(Contact.fields field){
         addressBook.contactBook.sort((Contact c1, Contact c2) -> {
             String name1 = c1.values.get(field);
@@ -127,6 +138,7 @@ public class AddressBookDemo {
         });
         System.out.println("Successfully Sorted.........!!!!!!!!");
     }
+
     public static void sortByparams() {
         int choice_ = 0;
 
@@ -151,7 +163,7 @@ public class AddressBookDemo {
         }
     }
 
-    public static void saveData(){
+    public static void saveToCSV() {
         String csvFile = "addressbook.csv";
         try {
             CSVWriter writer = new CSVWriter(new FileWriter(csvFile));
@@ -169,46 +181,78 @@ public class AddressBookDemo {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
-    public static void loadData() {
-        File contactDataFolder = new File("AddressBooks");
-        File[] contactBookFiles = contactDataFolder.listFiles();
-        if (contactBookFiles != null) {
-            for (File child : contactBookFiles) {
-                try {
-                    Scanner fileReader = new Scanner(child);
-                    String name = child.toString().substring(13, (int) child.toString().length()-4);
-                    ArrayList<Contact> contactList = new ArrayList<>();
-                    List<Contact.fields> field = Arrays.asList(Contact.fields.values());
-
-                    while (fileReader.hasNext()){
-                        HashMap<Contact.fields, String> savedContact = new HashMap<>();
-                        for(int i=0; i<field.size(); i++){
-                            savedContact.put(field.get(i), fileReader.nextLine());
-                        }
-                        Contact saved= new Contact(savedContact);
-                        contactList.add(saved);
-                    }
-
-                    addressBook  = new AddressBookSystem();
-                    addressBook.contactBook = contactList;
-                    addressBooks.put(name, addressBook) ;
-
-
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
+    public static void saveToJSON() {
+        Gson gson = new GsonBuilder().create();
+        try {
+            String data = gson.toJson(addressBooks);
+            FileWriter writer = new FileWriter("addressBook.json");
+            writer.write(data);
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
+    public static void saveData(){
+        saveToCSV();
+        saveToJSON();
+
+    }
+
+    public static void loadDatafromJson() {
+        Gson gson = new Gson();
+        Type type = new TypeToken<HashMap<String, AddressBookSystem>>(){}.getType();
+        try {
+
+
+            addressBooks = gson.fromJson(new FileReader("addressBook.json"), type);
+        } catch (FileNotFoundException e) {
+            addressBooks = new HashMap<>();
+        }
+        if(addressBooks == null) addressBooks = new HashMap<>();
+    }
+    public static void loadData() {
+        String jdbcURL = "jdbc:mysql://localhost:3306/Address_book_service?allowPublicKeyRetrieval=true&useSSL=false";
+        String userName = "tejas";
+        String password = "Password@123";
+        Connection connection;
+        System.out.println("Connecting to database:" + jdbcURL);
+        try {
+
+            connection = DriverManager.getConnection(jdbcURL, userName, password);
+            ResultSet res = connection.createStatement().executeQuery("SELECT * from AddressBookTable");
+            while(res.next()){
+                HashMap<Contact.fields, String> map = new HashMap<>();
+                map.put(Contact.fields.firstName, res.getString("firstName"));
+                map.put(Contact.fields.lastName, res.getString("lastname"));
+                map.put(Contact.fields.address, res.getString("address"));
+                map.put(Contact.fields.city, res.getString("city"));
+                map.put(Contact.fields.state, res.getString("state"));
+                map.put(Contact.fields.zipCode, String.valueOf(res.getInt("zip")));
+                map.put(Contact.fields.phoneNumber, res.getString("phoneNumber"));
+                map.put(Contact.fields.email, res.getString("email"));
+                AddressBookSystem curr = addressBooks.get(res.getString("addressbookname"));
+                if(curr == null)
+                    curr = new AddressBookSystem();
+                curr.addContacts(new Contact(map));
+                addressBooks.put(res.getString("addressbookname"), curr);
+            }
+        } catch (SQLException throwables) {
+            System.out.println("Unable to retrive data");
+        }
+
+
+    }
     public static void main(String[] args) {
-        addressBooks.put("default", addressBook);
         int choice = 0;
         loadData();
         addressBook = addressBooks.get("default");
+        if(addressBook == null){
+            addressBook = new AddressBookSystem();
+            addressBooks.put("default", addressBook);
+        }
         while(choice != 11){
             System.out.println("0.Add Address book \n1. Add contact \n2. Edit contact \n3.delete contact \n4. view all contacts. \n5. search Contact by city. \n6. search contact by state." +
                     " \n7 no of contact by city \n8. no of contact by state \n9.paramert to search \n10. switch addressbook \n11.exit");

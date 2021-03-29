@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 public class AddressBookSystem {
 
-    ArrayList<Contact> contactBook = new ArrayList<Contact>();
+    public ArrayList<Contact> contactBook = new ArrayList<Contact>();
 
     public int addContacts(Contact contact) {
         int index = contactBook.indexOf(contact);

@@ -20,7 +20,13 @@ public class Contact {
 
     public void printContact() {
 
-        System.out.println(this.toString());
+        String contactInfo;
+        contactInfo = "Name: " + values.get(fields.firstName) + " " +  values.get(fields.lastName);
+        List<fields> field = Arrays.asList(fields.values());
+        for(int i =2; i<field.size(); i ++){
+            contactInfo = contactInfo + "\n" + field.get(i) + ": " + values.get(field.get(i));
+        }
+        System.out.println( contactInfo);
     }
 
     @Override
@@ -37,13 +43,7 @@ public class Contact {
 
     @Override
     public String toString() {
-        String contactInfo;
-        contactInfo = "Name: " + values.get(fields.firstName) + " " +  values.get(fields.lastName);
-        List<fields> field = Arrays.asList(fields.values());
-        for(int i =2; i<field.size(); i ++){
-            contactInfo = contactInfo + "\n" + field.get(i) + ": " + values.get(field.get(i));
-        }
-        return contactInfo;
+        return values.toString();
     }
     public String CSVformat(String bookname){
         String format = bookname;
@@ -53,4 +53,6 @@ public class Contact {
         }
         return format;
     }
+
+
 }
