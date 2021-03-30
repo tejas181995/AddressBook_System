@@ -47,14 +47,19 @@ public class AddressBookDemo {
                 String val = sc.nextLine();
                 contact.put(field.get(i), val) ;
             }
-            Contact newContact = new Contact(contact);
-            addressBook.addContacts(newContact);
-            try {
-                System.out.println(newContact.InsertQueryFormat(currAddressBook));
-                connection.createStatement().executeUpdate("INSERT INTO AddressBookTable VALUES "+newContact.InsertQueryFormat(currAddressBook));
-            } catch (SQLException throwables) {
-                System.out.println("Unable to add to DB");
-            }
+            addEntryToDB(contact);
+
+        }
+    }
+
+    public static void addEntryToDB(HashMap<Contact.fields, String> contact){
+        Contact newContact = new Contact(contact);
+        addressBook.addContacts(newContact);
+        try {
+            System.out.println(newContact.InsertQueryFormat(currAddressBook));
+            connection.createStatement().executeUpdate("INSERT INTO AddressBookTable VALUES "+newContact.InsertQueryFormat(currAddressBook));
+        } catch (SQLException throwables) {
+            System.out.println("Unable to add to DB");
         }
     }
 
@@ -107,8 +112,12 @@ public class AddressBookDemo {
 
         System.out.println("Enter contact Name to be deleted");
         String deleteName = sc.nextLine();
-        int index ;
+        deleteEntryFromDB(deleteName);
 
+    }
+
+    public static void deleteEntryFromDB(String deleteName){
+        int index ;
         index = addressBook.findContact(deleteName);
         if(index >=0){
             addressBook.getContact(index).printContact();
@@ -273,6 +282,7 @@ public class AddressBookDemo {
     }
 
     public static void loadData() throws SQLException {
+        addressBooks = new HashMap<>();
         ResultSet res = connection.createStatement().executeQuery("SELECT * from AddressBookTable");
         while(res.next()) {
             HashMap<Contact.fields, String> map = new HashMap<>();
@@ -281,7 +291,7 @@ public class AddressBookDemo {
             map.put(Contact.fields.address, res.getString("address"));
             map.put(Contact.fields.city, res.getString("city"));
             map.put(Contact.fields.state, res.getString("state"));
-            map.put(Contact.fields.zipCode, String.valueOf(res.getInt("zipCode")));
+            map.put(Contact.fields.zipCode, res.getString("zipCode"));
             map.put(Contact.fields.phoneNumber, res.getString("phoneNumber"));
             map.put(Contact.fields.email, res.getString("email"));
             AddressBookSystem curr = addressBooks.get(res.getString("addressbookname"));
@@ -293,7 +303,7 @@ public class AddressBookDemo {
     }
 
     public static void main(String[] args) {
-        init();
+
         int choice = 0;
         addressBook = addressBooks.get("default");
         if(addressBook == null){
