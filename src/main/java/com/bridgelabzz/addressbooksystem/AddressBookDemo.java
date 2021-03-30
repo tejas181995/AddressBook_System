@@ -47,7 +47,7 @@ public class AddressBookDemo {
                 String val = sc.nextLine();
                 contact.put(field.get(i), val) ;
             }
-            addEntryToDB(contact);
+            new Thread(()->{addEntryToDB(contact);}).start();
 
         }
     }
@@ -303,7 +303,7 @@ public class AddressBookDemo {
     }
 
     public static void main(String[] args) {
-
+        init();
         int choice = 0;
         addressBook = addressBooks.get("default");
         if(addressBook == null){
