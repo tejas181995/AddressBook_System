@@ -1,3 +1,4 @@
+import com.bridgelabzz.addressbooksystem.AddressBookSystem;
 import com.bridgelabzz.addressbooksystem.Contact;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -58,5 +59,23 @@ public class AddressBookUnitTest {
     @Test
     public void readEntriesFromJsonServer() {
         Assertions.assertTrue(loadJSON());
+    }
+
+    @Test
+    public void testAddContactSync() {
+        loadJSON();
+        HashMap<Contact.fields,String> c = new HashMap<>();
+        c.put(Contact.fields.firstName, "testname");
+        c.put(Contact.fields.lastName, "testLastName");
+        c.put(Contact.fields.address, "testAddress");
+        c.put(Contact.fields.email, "testEmail");
+        c.put(Contact.fields.zipCode, "testCity");
+        c.put(Contact.fields.city, "testZip");
+        c.put(Contact.fields.state, "testState");
+        c.put(Contact.fields.phoneNumber, "testPhone");
+        addEntryToDB(c);
+        HashMap<String, AddressBookSystem> oldBook = addressBooks;
+        loadJSON();
+        Assertions.assertEquals(oldBook, addressBooks);
     }
 }

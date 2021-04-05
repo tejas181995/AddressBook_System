@@ -71,16 +71,17 @@ public class AddressBookDemo {
             new Thread(()->{addEntryToDB(contact);}).start();
 
         }
-        saveToJSON();
+
     }
 
     public static void addEntryToDB(HashMap<Contact.fields, String> contact){
         Contact newContact = new Contact(contact);
         addressBook.addContacts(newContact);
+        saveToJSON();
         try {
             System.out.println(newContact.InsertQueryFormat(currAddressBook));
             connection.createStatement().executeUpdate("INSERT INTO AddressBookTable VALUES "+newContact.InsertQueryFormat(currAddressBook));
-        } catch (SQLException throwables) {
+        } catch (SQLException | NullPointerException throwables) {
             System.out.println("Unable to add to DB");
         }
     }
@@ -105,29 +106,33 @@ public class AddressBookDemo {
                 sc.nextLine();
                 System.out.println("Enter new value of "+ field.get(choice ));
                 String newVal = sc.nextLine();
-                addressBook.editContact(index, field.get(choice), newVal);
-                addressBook.getContact(index).printContact();
-                String query = "UPDATE AddressBookTable SET "+ String.valueOf(field.get(choice))+ "  = ? WHERE FIRSTNAME = ? ";
-                try {
-                    PreparedStatement statement = connection.prepareStatement(query);
+                editEntryToDB(index,  field.get(choice ), newVal, searchName);
 
-                    statement.setString(1, newVal);
-                    statement.setString(2,searchName);
-                    statement.executeUpdate();
-                    statement.close();
-                } catch (SQLException throwables) {
-                    throwables.printStackTrace();
-                }
                 System.out.println("want to make more changes then press 1");
                 reply =  sc.nextInt();
-
-
-
             }
         }else{
             System.out.println("Contact not presnt");
         }
-        saveToJSON();
+    }
+
+    public static void editEntryToDB(int index, Contact.fields f, String newVal, String searchName){ ;
+            addressBook.editContact(index, f, newVal);
+            saveToJSON();
+            addressBook.getContact(index).printContact();
+            String query = "UPDATE AddressBookTable SET "+ String.valueOf(f)+ "  = ? WHERE FIRSTNAME = ? ";
+            try {
+                PreparedStatement statement = connection.prepareStatement(query);
+
+                statement.setString(1, newVal);
+                statement.setString(2,searchName);
+                statement.executeUpdate();
+                statement.close();
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+
+
     }
 
     public static void deleteEntry(){
@@ -136,7 +141,6 @@ public class AddressBookDemo {
         System.out.println("Enter contact Name to be deleted");
         String deleteName = sc.nextLine();
         deleteEntryFromDB(deleteName);
-        saveToJSON();
 
     }
 
@@ -156,6 +160,7 @@ public class AddressBookDemo {
 
             }
             System.out.println("Contact Deleted successfully");
+            saveToJSON();
         }else{
             System.out.println("contact not found");
         }
