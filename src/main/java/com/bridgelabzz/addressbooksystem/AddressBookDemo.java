@@ -5,6 +5,9 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.opencsv.CSVWriter;
 
+import javax.net.ssl.HttpsURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.*;
 
 import java.io.*;
@@ -19,8 +22,8 @@ public class AddressBookDemo {
     public static Scanner sc = new Scanner(System.in);
 
     public static final String jdbcURL = "jdbc:mysql://localhost:3306/Address_book_service?allowPublicKeyRetrieval=true&useSSL=false";
-    public static final String userName = "tejas";
-    public static final String password = "Password@123";
+    public static final String userName = "postgres";
+    public static final String password = "4859";
     public static Connection connection;
 
     public static void init(){
@@ -30,6 +33,24 @@ public class AddressBookDemo {
         } catch (SQLException throwables) {
             System.out.println("Unable to retrive data");
         }
+    }
+
+    public static boolean loadJSON(){
+        try {
+            URL url = new URL("http://localhost:3000/default");
+            Gson gson = new Gson();
+            Type type = new TypeToken<HashMap<String, AddressBookSystem>>(){}.getType();
+            InputStreamReader reader = new InputStreamReader(url.openStream());
+
+            addressBooks = gson.fromJson(reader, type);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            return false;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     public static void addEntries(){
@@ -50,6 +71,7 @@ public class AddressBookDemo {
             new Thread(()->{addEntryToDB(contact);}).start();
 
         }
+        saveToJSON();
     }
 
     public static void addEntryToDB(HashMap<Contact.fields, String> contact){
@@ -105,6 +127,7 @@ public class AddressBookDemo {
         }else{
             System.out.println("Contact not presnt");
         }
+        saveToJSON();
     }
 
     public static void deleteEntry(){
@@ -113,6 +136,7 @@ public class AddressBookDemo {
         System.out.println("Enter contact Name to be deleted");
         String deleteName = sc.nextLine();
         deleteEntryFromDB(deleteName);
+        saveToJSON();
 
     }
 
@@ -128,8 +152,8 @@ public class AddressBookDemo {
                 statement.setString(1, deleteName);
                 statement.executeUpdate();
                 statement.close();
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
+            } catch (SQLException | NullPointerException e) {
+
             }
             System.out.println("Contact Deleted successfully");
         }else{
@@ -252,11 +276,16 @@ public class AddressBookDemo {
 
     public static void saveToJSON() {
         Gson gson = new GsonBuilder().create();
+        String data;
         try {
-            String data = gson.toJson(addressBooks);
+            data = gson.toJson(addressBooks);
             FileWriter writer = new FileWriter("addressBook.json");
             writer.write(data);
             writer.close();
+            FileWriter writerforServer = new FileWriter("addressBookjsonServer.json");
+            data = "{\"default\":" + data + "}";
+            writerforServer.write(data);
+            writerforServer.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -272,8 +301,6 @@ public class AddressBookDemo {
         Gson gson = new Gson();
         Type type = new TypeToken<HashMap<String, AddressBookSystem>>(){}.getType();
         try {
-
-
             addressBooks = gson.fromJson(new FileReader("addressBook.json"), type);
         } catch (FileNotFoundException e) {
             addressBooks = new HashMap<>();
@@ -303,7 +330,7 @@ public class AddressBookDemo {
     }
 
     public static void main(String[] args) {
-        init();
+        loadJSON();
         int choice = 0;
         addressBook = addressBooks.get("default");
         if(addressBook == null){

@@ -54,4 +54,9 @@ public class AddressBookUnitTest {
         init();
         deleteEntryFromDB("testname");
     }
+
+    @Test
+    public void readEntriesFromJsonServer() {
+        Assertions.assertTrue(loadJSON());
+    }
 }
