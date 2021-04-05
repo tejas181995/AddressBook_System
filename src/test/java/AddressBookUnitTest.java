@@ -88,4 +88,14 @@ public class AddressBookUnitTest {
         loadJSON();
         Assertions.assertEquals(oldBook, addressBooks);
     }
+
+    @Test
+    void testDeleteEntry() {
+        loadJSON();
+        currAddressBook = "default";
+        deleteEntryFromDB("testname");
+        HashMap<String, AddressBookSystem> oldBook = addressBooks;
+        loadJSON();
+        Assertions.assertEquals(oldBook, addressBooks);
+    }
 }
