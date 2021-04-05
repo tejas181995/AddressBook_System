@@ -78,4 +78,14 @@ public class AddressBookUnitTest {
         loadJSON();
         Assertions.assertEquals(oldBook, addressBooks);
     }
+
+    @Test
+    public void testUpdateEntry() {
+        loadJSON();
+        currAddressBook= "default";
+        editEntryToDB("testname", Contact.fields.city, "karad");
+        HashMap<String, AddressBookSystem> oldBook = addressBooks;
+        loadJSON();
+        Assertions.assertEquals(oldBook, addressBooks);
+    }
 }

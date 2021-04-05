@@ -50,6 +50,7 @@ public class AddressBookDemo {
             e.printStackTrace();
             return false;
         }
+        addressBook = addressBooks.get(currAddressBook);
         return true;
     }
 
@@ -77,6 +78,8 @@ public class AddressBookDemo {
     public static void addEntryToDB(HashMap<Contact.fields, String> contact){
         Contact newContact = new Contact(contact);
         addressBook.addContacts(newContact);
+        addressBooks.put(currAddressBook, addressBook);
+
         saveToJSON();
         try {
             System.out.println(newContact.InsertQueryFormat(currAddressBook));
@@ -106,7 +109,7 @@ public class AddressBookDemo {
                 sc.nextLine();
                 System.out.println("Enter new value of "+ field.get(choice ));
                 String newVal = sc.nextLine();
-                editEntryToDB(index,  field.get(choice ), newVal, searchName);
+                editEntryToDB(searchName, field.get(choice ), newVal);
 
                 System.out.println("want to make more changes then press 1");
                 reply =  sc.nextInt();
@@ -116,8 +119,10 @@ public class AddressBookDemo {
         }
     }
 
-    public static void editEntryToDB(int index, Contact.fields f, String newVal, String searchName){ ;
+    public static void editEntryToDB(String searchName, Contact.fields f, String newVal){
+            int index = addressBook.findContact(searchName);
             addressBook.editContact(index, f, newVal);
+            addressBooks.put(currAddressBook, addressBook);
             saveToJSON();
             addressBook.getContact(index).printContact();
             String query = "UPDATE AddressBookTable SET "+ String.valueOf(f)+ "  = ? WHERE FIRSTNAME = ? ";
@@ -128,7 +133,7 @@ public class AddressBookDemo {
                 statement.setString(2,searchName);
                 statement.executeUpdate();
                 statement.close();
-            } catch (SQLException throwables) {
+            } catch (SQLException | NullPointerException throwables) {
                 throwables.printStackTrace();
             }
 
@@ -160,6 +165,7 @@ public class AddressBookDemo {
 
             }
             System.out.println("Contact Deleted successfully");
+            addressBooks.put(currAddressBook, addressBook);
             saveToJSON();
         }else{
             System.out.println("contact not found");
